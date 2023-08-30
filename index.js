@@ -87,11 +87,18 @@ async function run() {
             const result = await eventListCollection.insertOne(addEventList);
             res.send(result);
         })
-        //delete
+        //delete for events list
         app.delete('/events-list/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await eventListCollection.deleteOne(query)
+            res.send(result)
+        })
+        // delete for register list
+        app.delete('/register-list/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await volunteerRegistration.deleteOne(query)
             res.send(result)
         })
 
