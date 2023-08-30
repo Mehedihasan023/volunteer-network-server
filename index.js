@@ -92,7 +92,6 @@ async function run() {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
             const updatedEvents = req.body;
-           // console.log(updatedEvents);
             const updateDoc = {
                 $set: {
                     title:updatedEvents.title,
@@ -102,7 +101,9 @@ async function run() {
                 },
             };
             const result = await volunteerCollection.updateOne(filter, updateDoc);
-            res.send(result);
+           // update evet list collection data also 
+            const result2 = await eventListCollection.updateMany({ updateId: id }, updateDoc);
+            res.send({ result, result2 }); 
         })
 
 
