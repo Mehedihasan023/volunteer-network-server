@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -25,9 +25,10 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
-        
+
         const volunteerCollection = client.db('volunteerDB').collection('volunteer');
-        
+        const volunteerRegistration = client.db('volunteerDB').collection('registerList');
+        const eventListCollection = client.db('volunteerDB').collection('eventList');
         //post add events data which comes from client side
         app.post('/add-events', async (req, res) => {
             const addEvents = req.body;
@@ -41,7 +42,45 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
+        //  get events by id
+        app.get('/events/:id', async (req, res) => {
+            const id = req.params.id;
+            // console.log(id)
+            const query = { _id: new ObjectId(id) }
+            const options = {
+                // Include only the `title` in the returned document
+                projection: { title: 1, img: 1, description: 1 },
+            };
+            const result = await volunteerCollection.findOne(query, options)
+            res.send(result);
+        })
+        //get events list by email
+        app.get('/events-list', async (req, res) => {
+            const email = req.query.email;
+            console.log(email);
+            let query={}
+             query = { email: email }
+            const cursor = eventListCollection.find(query)
+            const result = await cursor.toArray();
+            res.send(result);
 
+        })
+
+
+        // post add register list come from client side
+        app.post('/register-list', async (req, res) => {
+            const addRegisterList = req.body;
+            console.log(addRegisterList);
+            const result = await volunteerRegistration.insertOne(addRegisterList);
+            res.send(result);
+        })
+        // post add event list come from client side
+        app.post('/event-list', async (req, res) => {
+            const addEventList = req.body;
+            console.log(addEventList);
+            const result = await eventListCollection.insertOne(addEventList);
+            res.send(result);
+        })
 
 
 
@@ -50,7 +89,7 @@ async function run() {
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
-       // await client.close();
+        // await client.close();
     }
 }
 run().catch(console.dir);
