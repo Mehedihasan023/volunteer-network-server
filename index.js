@@ -29,16 +29,16 @@ async function run() {
         const volunteerCollection = client.db('volunteerDB').collection('volunteer');
         const volunteerRegistration = client.db('volunteerDB').collection('registerList');
         const eventListCollection = client.db('volunteerDB').collection('eventList');
-        //post add events data which comes from client side
-        app.post('/add-events', async (req, res) => {
-            const addEvents = req.body;
-            console.log(addEvents);
-            const result = await volunteerCollection.insertOne(addEvents);
-            res.send(result);
-        })
+    
         //get events data form database
         app.get('/events', async (req, res) => {
             const cursor = volunteerCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+        //get register list from database
+        app.get('/register-list', async (req, res) => {
+            const cursor = volunteerRegistration.find();
             const result = await cursor.toArray();
             res.send(result);
         })
@@ -66,7 +66,13 @@ async function run() {
 
         })
 
-
+        //post add events data which comes from client side
+        app.post('/add-events', async (req, res) => {
+            const addEvents = req.body;
+            console.log(addEvents);
+            const result = await volunteerCollection.insertOne(addEvents);
+            res.send(result);
+        })
         // post add register list come from client side
         app.post('/register-list', async (req, res) => {
             const addRegisterList = req.body;
@@ -81,7 +87,13 @@ async function run() {
             const result = await eventListCollection.insertOne(addEventList);
             res.send(result);
         })
-
+        //delete
+        app.delete('/events-list/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await eventListCollection.deleteOne(query)
+            res.send(result)
+        })
 
 
         // Send a ping to confirm a successful connection
