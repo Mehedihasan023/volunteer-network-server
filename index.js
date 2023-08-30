@@ -49,7 +49,7 @@ async function run() {
             const query = { _id: new ObjectId(id) }
             const options = {
                 // Include only the `title` in the returned document
-                projection: { title: 1, img: 1, description: 1 },
+                projection: { title: 1, img: 1, description: 1, date:1 },
             };
             const result = await volunteerCollection.findOne(query, options)
             res.send(result);
@@ -57,7 +57,7 @@ async function run() {
         //get events list by email
         app.get('/events-list', async (req, res) => {
             const email = req.query.email;
-            console.log(email);
+          //  console.log(email);
             let query={}
              query = { email: email }
             const cursor = eventListCollection.find(query)
@@ -69,24 +69,43 @@ async function run() {
         //post add events data which comes from client side
         app.post('/add-events', async (req, res) => {
             const addEvents = req.body;
-            console.log(addEvents);
+            //console.log(addEvents);
             const result = await volunteerCollection.insertOne(addEvents);
             res.send(result);
         })
         // post add register list come from client side
         app.post('/register-list', async (req, res) => {
             const addRegisterList = req.body;
-            console.log(addRegisterList);
+          //  console.log(addRegisterList);
             const result = await volunteerRegistration.insertOne(addRegisterList);
             res.send(result);
         })
         // post add event list come from client side
         app.post('/event-list', async (req, res) => {
             const addEventList = req.body;
-            console.log(addEventList);
+          //  console.log(addEventList);
             const result = await eventListCollection.insertOne(addEventList);
             res.send(result);
         })
+        //update  single event
+        app.patch('/events/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updatedEvents = req.body;
+           // console.log(updatedEvents);
+            const updateDoc = {
+                $set: {
+                    title:updatedEvents.title,
+                    description:updatedEvents.description,
+                    img: updatedEvents.img,
+                    date:updatedEvents.date
+                },
+            };
+            const result = await volunteerCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
+
+
         //delete for events list
         app.delete('/events-list/:id', async (req, res) => {
             const id = req.params.id;
